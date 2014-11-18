@@ -1,0 +1,7 @@
+
+relayhost = smtp.gmail.com:587
+smtp_use_tls=yes
+#smtp_fallback_relay = [relaybackup.mailserverbackup.com] # this option is optional, for GMail SMTP i removed it.
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/relay_passwd
+smtp_sasl_security_options =
