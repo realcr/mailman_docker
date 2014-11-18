@@ -17,7 +17,7 @@ run apt-get install -q -y vim
 
 # Install Postfix.
 run echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
-run echo "postfix postfix/mailname string lists.freedomlayer.ord" >> preseed.txt
+run echo "postfix postfix/mailname string lists.freedomlayer.org" >> preseed.txt
 # Use Mailbox format.
 run debconf-set-selections preseed.txt
 run DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
