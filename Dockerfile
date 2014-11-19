@@ -71,6 +71,14 @@ RUN sed -i 's/^#\(SYSLOGNG_OPTS="--no-caps"\)/\1/g' /etc/default/syslog-ng
 # add etc-postfix-main.cf /etc-postfix-main.cf
 # run cat /etc-postfix-main.cf >> /etc/postfix/main.cf
 
+#Associate the domain lists.example.com to the mailman transport with the transport map. Edit the file /etc/postfix/transport:
+#
+#lists.example.com      mailman:
+
+ADD ./etc-postfix-transport /etc/postfix/transport
+RUN chown root:list /etc/postfix/transport
+RUN postmap -v /etc/postfix/transport
+
 ######################## [Install Apache] #########################
 
 RUN apt-get install -y apache2
@@ -105,22 +113,21 @@ RUN postconf -e 'alias_maps = hash:/etc/aliases, hash:/var/lib/mailman/data/alia
 #
 #It calls the postfix-to-mailman.py script when a mail is delivered to a list.
 #
-#Associate the domain lists.example.com to the mailman transport with the transport map. Edit the file /etc/postfix/transport:
-#
-#lists.example.com      mailman:
 
 ADD ./etc-mailman-mm_cfg.py /etc/mailman/mm_cfg.py
-ADD ./etc-postfix-transport /etc/postfix/transport
 
-RUN chown root:list /etc/postfix/transport
-
-RUN postmap -v /etc/postfix/transport
+# Generate aliases:
+RUN /usr/lib/mailman/bin/genaliases
 
 RUN chown root:list /var/lib/mailman/data/aliases
 RUN chown root:list /etc/aliases
 
 RUN newaliases
 RUN /etc/init.d/postfix restart
+
+# Build the first mailing list (mailman). Without it mailman won't work.
+RUN newlist --urlhost=lists.freedomlayer.org --emailhost=lists.freedomlayer.org \
+	mailman some_email@example.com 123456
 
 
 ######### [Install supervidord] ################## 
@@ -130,7 +137,6 @@ RUN apt-get install -y supervisor
 ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #########[ Start all processes] ##################
-
 
 expose 25 80
 
