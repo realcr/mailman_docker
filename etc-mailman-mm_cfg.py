@@ -57,16 +57,21 @@ MAILMAN_SITE_LIST = 'mailman'
 #-------------------------------------------------------------
 # If you change these, you have to configure your http server
 # accordingly (Alias and ScriptAlias directives in most httpds)
-DEFAULT_URL_PATTERN = 'http://%s/cgi-bin/mailman/'
-PRIVATE_ARCHIVE_URL = '/cgi-bin/mailman/private'
-IMAGE_LOGOS         = '/images/mailman/'
+
+# I got some advice for the following from:
+# https://wiki.archlinux.org/index.php/mailman
+
+DEFAULT_URL_PATTERN = 'http://%s/lists'
+# PRIVATE_ARCHIVE_URL = '/cgi-bin/mailman/private'
+PUBLIC_ARCHIVE_URL = 'http://%(hostname)s/archives/%(listname)s'
+IMAGE_LOGOS         = '/mailman-icons/'
 
 #-------------------------------------------------------------
 # Default domain for email addresses of newly created MLs
-DEFAULT_EMAIL_HOST = 'mail.colmsjo.com'
+DEFAULT_EMAIL_HOST = 'lists.freedomlayer.org'
 #-------------------------------------------------------------
 # Default host for web interface of newly created MLs
-DEFAULT_URL_HOST   = 'mail.colmsjo.com'
+DEFAULT_URL_HOST   = 'lists.freedomlayer.org'
 #-------------------------------------------------------------
 # Required when setting any of its arguments.
 add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
