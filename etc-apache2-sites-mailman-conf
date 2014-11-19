@@ -18,7 +18,7 @@ Alias /images/mailman/ /usr/share/images/mailman/
 
 <Directory /usr/lib/cgi-bin/mailman/>
     AllowOverride None
-    Options ExecCGI
+    Options +ExecCGI
     AddHandler cgi-script .cgi
     # (Old apache2.2 style configuration:)
     # Order allow,deny
