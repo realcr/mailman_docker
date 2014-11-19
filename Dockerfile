@@ -112,12 +112,12 @@ RUN postconf -e 'alias_maps = hash:/etc/aliases, hash:/var/lib/mailman/data/alia
 ADD ./etc-mailman-mm_cfg.py /etc/mailman/mm_cfg.py
 ADD ./etc-postfix-transport /etc/postfix/transport
 
-# RUN chown root:list /etc/postfix/transport
+RUN chown root:list /etc/postfix/transport
 
 RUN postmap -v /etc/postfix/transport
 
-#RUN chown root:list /var/lib/mailman/data/aliases
-# RUN chown root:list /etc/aliases
+RUN chown root:list /var/lib/mailman/data/aliases
+RUN chown root:list /etc/aliases
 
 RUN newaliases
 RUN /etc/init.d/postfix restart
