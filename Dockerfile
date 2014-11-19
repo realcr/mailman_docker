@@ -78,9 +78,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
 
 # Get relevant apache configuration for mailmain:
 # RUN ln -s /etc/mailman/apache.conf /etc/apache2/sites-available/mailman
-ADD etc-apache2-sites-mailman /etc/apache2/sites-available/mailman
+ADD etc-apache2-sites-mailman-conf /etc/apache2/sites-available/mailman.conf
+# Create root directory:
+RUN mkdir /var/www/lists
+# Enable the mailman virtual host:
+RUN a2ensite mailman.conf
+
 # Enable the virtual site mailman:
-RUN ln -s /etc/apache2/sites-available/mailman /etc/apache2/sites-enabled/mailman
+# RUN ln -s /etc/apache2/sites-available/mailman /etc/apache2/sites-enabled/mailman
 # Restart apache:
 RUN /etc/init.d/apache2 restart
 
@@ -112,6 +117,7 @@ RUN postmap -v /etc/postfix/transport
 RUN chown root:list /etc/aliases
 
 RUN newaliases
+RUN /etc/init.d/postfix restart
 
 
 ######### [Install supervidord] ################## 
