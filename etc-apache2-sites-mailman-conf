@@ -20,19 +20,28 @@ Alias /images/mailman/ /usr/share/images/mailman/
     AllowOverride None
     Options ExecCGI
     AddHandler cgi-script .cgi
-    Order allow,deny
-    Allow from all
+    # (Old apache2.2 style configuration:)
+    # Order allow,deny
+    # Allow from all
+    # New apache 2.4 configuration:
+    Require all granted
 </Directory>
 <Directory /var/lib/mailman/archives/public/>
     Options FollowSymlinks
     AllowOverride None
-    Order allow,deny
-    Allow from all
+    # (Old configuration:)
+    # Order allow,deny
+    # Allow from all
+    # New apache 2.4 configuration:
+    Require all granted
 </Directory>
 <Directory /usr/share/images/mailman/>
     AllowOverride None
-    Order allow,deny
-    Allow from all
+    # (Old configuration:)
+    # Order allow,deny
+    # Allow from all 
+    # New apache 2.4 configuration:
+    Require all granted
 </Directory>
 
 
