@@ -1,51 +1,52 @@
 # Taken from https://github.com/colmsjo/docker/tree/master/containers/mailman
 
-from ubuntu:14.04
-maintainer real <real.flayer@outlook.com>
+FROM ubuntu:14.04
+MAINTAINER real <real.flayer@outlook.com>
 
 # run echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list # 2013-08-24
 
-run apt-get update
+RUN apt-get update
 
 # Good foor debugging
-run apt-get -y install mutt vim dnsutils wget curl
+RUN apt-get -y install mutt vim dnsutils wget curl
 
 # Language stuff:
-run apt-get install -q -y language-pack-en
-run update-locale LANG=en_US.UTF-8
+RUN apt-get install -q -y language-pack-en
+RUN update-locale LANG=en_US.UTF-8
 
-run echo mail > /etc/hostname
-add etc-hosts.txt /etc/hosts
-run chown root:root /etc/hosts
+RUN echo mail > /etc/hostname
+# Doesn't work:
+# add etc-hosts.txt /etc/hosts
+# RUN chown root:root /etc/hosts
 
-run apt-get install -q -y vim
+RUN apt-get install -q -y vim
 
 ################# [Install Postfix] ############
-run echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
-run echo "postfix postfix/mailname string lists.freedomlayer.org" >> preseed.txt
+RUN echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
+RUN echo "postfix postfix/mailname string lists.freedomlayer.org" >> preseed.txt
 # Use Mailbox format.
-run debconf-set-selections preseed.txt
-run DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
+RUN debconf-set-selections preseed.txt
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
 
-run postconf -e myhostname=mail.example.com
-run postconf -e mydestination="lists.freedomlayer.org, freedomlayer.org, localhost.localdomain, localhost"
-run postconf -e mail_spool_directory="/var/spool/mail/"
-run postconf -e mailbox_command=""
+RUN postconf -e myhostname=mail.example.com
+RUN postconf -e mydestination="lists.freedomlayer.org, freedomlayer.org, localhost.localdomain, localhost"
+RUN postconf -e mail_spool_directory="/var/spool/mail/"
+RUN postconf -e mailbox_command=""
 
 # Add a local user to receive mail at someone@example.com, with a delivery directory
 # (for the Mailbox format).
-run useradd -s /bin/bash someone
-run mkdir /var/spool/mail/someone
-run chown someone:mail /var/spool/mail/someone
+RUN useradd -s /bin/bash someone
+RUN mkdir /var/spool/mail/someone
+RUN chown someone:mail /var/spool/mail/someone
 
-add etc-aliases.txt /etc/aliases
+ADD etc-aliases.txt /etc/aliases
 
 # Use syslog-ng to get Postfix logs (rsyslog uses upstart which does not seem
 # to run within Docker).
 
 # Added syslog-ng-core to solve a problem here.
 # Advice from: https://bugs.launchpad.net/ubuntu/+source/syslog-ng/+bug/1242173
-run apt-get install -q -y syslog-ng syslog-ng-core
+RUN apt-get install -q -y syslog-ng syslog-ng-core
 
 # Read more about the relation of postfix logging to syslog here:
 # http://www.postfix.org/BASIC_CONFIGURATION_README.html#syslog_howto
@@ -62,9 +63,9 @@ RUN sed -i 's/^#\(SYSLOGNG_OPTS="--no-caps"\)/\1/g' /etc/default/syslog-ng
 # Need to use smarthost when running in docker (since these IP-adresses often are blocked for spam purposes)
 # See: http://www.inboxs.com/index.php/linux-os/mail-server/52-configure-postfix-to-use-smart-host-gmail
 
-run echo smtp.gmail.com USERNAME:PASSWORD > /etc/postfix/relay_passwd
-run chmod 600 /etc/postfix/relay_passwd
-run postmap /etc/postfix/relay_passwd
+RUN echo smtp.gmail.com USERNAME:PASSWORD > /etc/postfix/relay_passwd
+RUN chmod 600 /etc/postfix/relay_passwd
+RUN postmap /etc/postfix/relay_passwd
 # add etc-postfix-main.cf /etc-postfix-main.cf
 # run cat /etc-postfix-main.cf >> /etc/postfix/main.cf
 
@@ -128,5 +129,7 @@ ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #########[ Start all processes] ##################
 
+
 expose 25 80
+
 cmd ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
