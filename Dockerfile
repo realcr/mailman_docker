@@ -15,7 +15,8 @@ RUN apt-get install -q -y language-pack-en
 RUN update-locale LANG=en_US.UTF-8
 
 RUN echo mail > /etc/hostname
-# Doesn't work:
+
+# Doesn't work, I don't know why.
 # add etc-hosts.txt /etc/hosts
 # RUN chown root:root /etc/hosts
 
@@ -63,9 +64,10 @@ RUN sed -i 's/^#\(SYSLOGNG_OPTS="--no-caps"\)/\1/g' /etc/default/syslog-ng
 # Need to use smarthost when running in docker (since these IP-adresses often are blocked for spam purposes)
 # See: http://www.inboxs.com/index.php/linux-os/mail-server/52-configure-postfix-to-use-smart-host-gmail
 
-RUN echo smtp.gmail.com USERNAME:PASSWORD > /etc/postfix/relay_passwd
-RUN chmod 600 /etc/postfix/relay_passwd
-RUN postmap /etc/postfix/relay_passwd
+# RUN echo smtp.gmail.com USERNAME:PASSWORD > /etc/postfix/relay_passwd
+# RUN chmod 600 /etc/postfix/relay_passwd
+# RUN postmap /etc/postfix/relay_passwd
+
 # add etc-postfix-main.cf /etc-postfix-main.cf
 # run cat /etc-postfix-main.cf >> /etc/postfix/main.cf
 
@@ -80,7 +82,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
 # Get relevant apache configuration for mailmain:
 # RUN ln -s /etc/mailman/apache.conf /etc/apache2/sites-available/mailman
 ADD etc-apache2-sites-mailman-conf /etc/apache2/sites-available/mailman.conf
-# Create root directory:
+# Create root site directory:
 RUN mkdir /var/www/lists
 # Enable the mailman virtual host:
 RUN a2ensite mailman.conf
@@ -110,12 +112,12 @@ RUN postconf -e 'alias_maps = hash:/etc/aliases, hash:/var/lib/mailman/data/alia
 ADD ./etc-mailman-mm_cfg.py /etc/mailman/mm_cfg.py
 ADD ./etc-postfix-transport /etc/postfix/transport
 
-RUN chown root:list /etc/postfix/transport
+# RUN chown root:list /etc/postfix/transport
 
 RUN postmap -v /etc/postfix/transport
 
 #RUN chown root:list /var/lib/mailman/data/aliases
-RUN chown root:list /etc/aliases
+# RUN chown root:list /etc/aliases
 
 RUN newaliases
 RUN /etc/init.d/postfix restart
