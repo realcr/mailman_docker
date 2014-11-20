@@ -1,11 +1,11 @@
 # Sample configuration for Debian mailman with Apache
 
 # We can find mailman here:
-ScriptAlias /cgi-bin/mailman/ /usr/lib/cgi-bin/mailman/
+# ScriptAlias /cgi-bin/mailman/ /usr/lib/cgi-bin/mailman/
 # And the public archives:
-Alias /pipermail/ /var/lib/mailman/archives/public/
+# Alias /pipermail/ /var/lib/mailman/archives/public/
 # Logos:
-Alias /images/mailman/ /usr/share/images/mailman/
+# Alias /images/mailman/ /usr/share/images/mailman/
 
 # Use this if you don't want the "cgi-bin" component in your URL:
 # In case you want to access mailman through a shorter URL you should enable
