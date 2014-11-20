@@ -92,14 +92,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
 ADD etc-apache2-sites-mailman-conf /etc/apache2/sites-available/mailman.conf
 # Create root site directory:
 RUN mkdir /var/www/lists
-# Enable the mailman virtual host:
-RUN a2ensite mailman
 
 # Enable CGI module in apache: (Required for mailman to work).
 RUN a2enmod cgi
 
-# Enable the virtual site mailman:
-# RUN ln -s /etc/apache2/sites-available/mailman /etc/apache2/sites-enabled/mailman
+# Enable the mailman virtual host:
+RUN a2ensite mailman
+
 # Restart apache:
 RUN /etc/init.d/apache2 restart
 
