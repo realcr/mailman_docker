@@ -64,7 +64,7 @@ CustomLog /var/log/apache2/lists-access.log combined
     AllowOverride None
 </Directory>
 
-Alias /pipermail/ /var/lib/mailman/archives/public/
+Alias /archives/ /var/lib/mailman/archives/public/
 Alias /images/mailman/ /usr/share/images/mailman/
 ScriptAlias /admin /usr/lib/cgi-bin/mailman/admin
 ScriptAlias /admindb /usr/lib/cgi-bin/mailman/admindb
