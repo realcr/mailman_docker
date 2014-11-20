@@ -61,7 +61,7 @@ MAILMAN_SITE_LIST = 'mailman'
 # I got some advice for the following from:
 # https://wiki.archlinux.org/index.php/mailman
 
-DEFAULT_URL_PATTERN = 'http://%s/lists'
+DEFAULT_URL_PATTERN = 'http://%s/'
 # PRIVATE_ARCHIVE_URL = '/cgi-bin/mailman/private'
 PUBLIC_ARCHIVE_URL = 'http://%(hostname)s/archives/%(listname)s'
 IMAGE_LOGOS         = '/mailman-icons/'
