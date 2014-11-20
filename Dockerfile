@@ -16,31 +16,37 @@ RUN update-locale LANG=en_US.UTF-8
 
 RUN echo mail > /etc/hostname
 
-# Doesn't work, I don't know why.
-# add etc-hosts.txt /etc/hosts
-# RUN chown root:root /etc/hosts
 
-RUN apt-get install -q -y vim
+######################## [Install Apache] #########################
 
-################# [Install Postfix] ############
-RUN echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
-RUN echo "postfix postfix/mailname string lists.freedomlayer.org" >> preseed.txt
-# Use Mailbox format.
-RUN debconf-set-selections preseed.txt
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
+RUN apt-get install -y apache2
 
-RUN postconf -e myhostname=mail.example.com
-RUN postconf -e mydestination="lists.freedomlayer.org, freedomlayer.org, localhost.localdomain, localhost"
-RUN postconf -e mail_spool_directory="/var/spool/mail/"
-RUN postconf -e mailbox_command=""
+######################## [Install mailman] ########################
 
-# Add a local user to receive mail at someone@example.com, with a delivery directory
-# (for the Mailbox format).
-RUN useradd -s /bin/bash someone
-RUN mkdir /var/spool/mail/someone
-RUN chown someone:mail /var/spool/mail/someone
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
 
-ADD etc-aliases.txt /etc/aliases
+# Mailman configuration file:
+ADD ./etc-mailman-mm_cfg.py /etc/mailman/mm_cfg.py
+
+########################[ Link Mailman to Apache ] ##################
+
+# Get relevant apache configuration for mailmain:
+# RUN ln -s /etc/mailman/apache.conf /etc/apache2/sites-available/mailman
+ADD etc-apache2-sites-mailman-conf /etc/apache2/sites-available/mailman.conf
+# Create root site directory:
+RUN mkdir /var/www/lists
+
+# Enable CGI module in apache: (Required for mailman to work).
+RUN a2enmod cgi
+
+# Enable the mailman virtual host:
+RUN a2ensite mailman
+
+# Restart apache:
+RUN /etc/init.d/apache2 restart
+
+
+###############[ Install syslog-ng ]################################
 
 # Use syslog-ng to get Postfix logs (rsyslog uses upstart which does not seem
 # to run within Docker).
@@ -61,81 +67,48 @@ RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng
 # http://serverfault.com/questions/524518/error-setting-capabilities-capability-management-disabled#
 RUN sed -i 's/^#\(SYSLOGNG_OPTS="--no-caps"\)/\1/g' /etc/default/syslog-ng
 
-# Need to use smarthost when running in docker (since these IP-adresses often are blocked for spam purposes)
-# See: http://www.inboxs.com/index.php/linux-os/mail-server/52-configure-postfix-to-use-smart-host-gmail
+################# [Install Postfix] ############
+RUN echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
+RUN echo "postfix postfix/mailname string lists.freedomlayer.org" >> preseed.txt
 
-# RUN echo smtp.gmail.com USERNAME:PASSWORD > /etc/postfix/relay_passwd
-# RUN chmod 600 /etc/postfix/relay_passwd
-# RUN postmap /etc/postfix/relay_passwd
-
-# add etc-postfix-main.cf /etc-postfix-main.cf
-# run cat /etc-postfix-main.cf >> /etc/postfix/main.cf
-
-#Associate the domain lists.example.com to the mailman transport with the transport map. Edit the file /etc/postfix/transport:
-#
-#lists.example.com      mailman:
-
-ADD ./etc-postfix-transport /etc/postfix/transport
-RUN chown root:list /etc/postfix/transport
-RUN postmap -v /etc/postfix/transport
-
-######################## [Install Apache] #########################
-
-RUN apt-get install -y apache2
-
-######################## [Install mailman] ########################
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
-
-# Get relevant apache configuration for mailmain:
-# RUN ln -s /etc/mailman/apache.conf /etc/apache2/sites-available/mailman
-ADD etc-apache2-sites-mailman-conf /etc/apache2/sites-available/mailman.conf
-# Create root site directory:
-RUN mkdir /var/www/lists
-
-# Enable CGI module in apache: (Required for mailman to work).
-RUN a2enmod cgi
-
-# Enable the mailman virtual host:
-RUN a2ensite mailman
-
-# Restart apache:
-RUN /etc/init.d/apache2 restart
+# Use Mailbox format.
+RUN debconf-set-selections preseed.txt
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
 
 RUN postconf -e 'relay_domains = lists.freedomlayer.org'
 RUN postconf -e 'transport_maps = hash:/etc/postfix/transport'
 RUN postconf -e 'mailman_destination_recipient_limit = 1'
 RUN postconf -e 'alias_maps = hash:/etc/aliases, hash:/var/lib/mailman/data/aliases'
 
-#In /etc/postfix/master.cf double check that you have the following transport:
-#
-#mailman   unix  -       n       n       -       -       pipe
-#  flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py
-#  ${nexthop} ${user}
-#
-#It calls the postfix-to-mailman.py script when a mail is delivered to a list.
-#
+RUN postconf -e 'myhostname=lists.freedomlayer.org'
+RUN postconf -e 'mydestination=lists.freedomlayer.org, localhost.localdomain, localhost'
+RUN postconf -e 'mail_spool_directory=/var/spool/mail/'
+RUN postconf -e 'mailbox_command='
 
-ADD ./etc-mailman-mm_cfg.py /etc/mailman/mm_cfg.py
+# Add a local user to receive mail at someone@example.com, with a delivery directory
+# (for the Mailbox format).
+RUN useradd -s /bin/bash someone
+RUN mkdir /var/spool/mail/someone
+RUN chown someone:mail /var/spool/mail/someone
+
+ADD etc-aliases.txt /etc/aliases
+
+ADD ./etc-postfix-transport /etc/postfix/transport
+RUN postmap -v /etc/postfix/transport
+
+#################[ Connect mailman to postfix ]#####################
 
 # Generate aliases:
 RUN /usr/lib/mailman/bin/genaliases
-
-
-# RUN chown root:list /var/lib/mailman/data/aliases
-# RUN chown root:list /etc/aliases
 
 # Allow access to /var/lib/mailman/data/aliases
 # See http://wiki.list.org/pages/viewpage.action?pageId=4030721
 RUN chmod 0664 /var/lib/mailman/data/aliases*
 
+RUN chown root:list /etc/postfix/transport
+
 RUN newaliases
 RUN /etc/init.d/postfix restart
-
-# Build the first mailing list (mailman). Without it mailman won't work.
-RUN newlist --urlhost=lists.freedomlayer.org --emailhost=lists.freedomlayer.org \
-	mailman some_email@example.com 123456
-
 
 ######### [Install supervidord] ################## 
 # (used to handle processes)
@@ -144,6 +117,10 @@ RUN apt-get install -y supervisor
 ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #########[ Start all processes] ##################
+
+# Build the first mailing list (mailman). Without it mailman won't work.
+RUN newlist --urlhost=lists.freedomlayer.org --emailhost=lists.freedomlayer.org \
+	mailman some_email@example.com 123456
 
 expose 25 80
 
