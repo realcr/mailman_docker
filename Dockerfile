@@ -121,10 +121,11 @@ ADD ./etc-mailman-mm_cfg.py /etc/mailman/mm_cfg.py
 # Generate aliases:
 RUN /usr/lib/mailman/bin/genaliases
 
-RUN chown root:list /var/lib/mailman/data/aliases
-RUN chown root:list /etc/aliases
+# RUN chown root:list /var/lib/mailman/data/aliases
+# RUN chown root:list /etc/aliases
 
 RUN newaliases
+
 RUN /etc/init.d/postfix restart
 
 # Build the first mailing list (mailman). Without it mailman won't work.
