@@ -156,6 +156,8 @@ RUN . /assets/conf.sh && \
 RUN . /assets/conf.sh && \
 	mmsitepass $MAILMAN_SITE_PASS
 
+# Move to the root directory:
+WORKDIR /
 # Cleanup the assets directory.
 RUN rm -R /assets
 
