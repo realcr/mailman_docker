@@ -24,7 +24,9 @@ RUN echo mail > /etc/hostname
 
 # Sync the date:
 RUN apt-get install -q -y ntp ntpdate
-RUN ntpdate -s
+RUN service ntp stop
+RUN ntpd -gq
+RUN service ntp start
 
 ######################## [Deal with assets] #######################
 
