@@ -68,7 +68,7 @@ IMAGE_LOGOS         = '/mailman-icons/'
 
 #-------------------------------------------------------------
 # Default domain for email addresses of newly created MLs
-DEFAULT_EMAIL_HOST = '${MAILMAIN_DOMAIN}'
+DEFAULT_EMAIL_HOST = '${MAILMAN_DOMAIN}'
 #-------------------------------------------------------------
 # Default host for web interface of newly created MLs
 DEFAULT_URL_HOST   = '${MAILMAN_DOMAIN}'
