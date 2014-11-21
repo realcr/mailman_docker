@@ -47,6 +47,7 @@ RUN "/assets/apply_conf.sh"
 
 RUN apt-get install -y apache2
 
+
 ######################## [Install mailman] ########################
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
@@ -61,6 +62,10 @@ RUN cp "/assets/etc-mailman-mm_cfg.py" "/etc/mailman/mm_cfg.py"
 RUN cp "/assets/etc-apache2-sites-mailman-conf" "/etc/apache2/sites-available/mailman.conf"
 # Create root site directory:
 RUN mkdir /var/www/lists
+
+# Set the server name:
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/fqdn
+RUN a2enconf fqdn
 
 # Enable CGI module in apache: (Required for mailman to work).
 RUN a2enmod cgi
