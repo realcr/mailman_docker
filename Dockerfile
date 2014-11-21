@@ -101,15 +101,15 @@ RUN debconf-set-selections preseed.txt
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
 
 RUN . /assets/conf.sh && \
-	postconf -e 'relay_domains = $MAILMAN_DOMAIN'
+	postconf -e "relay_domains = $MAILMAN_DOMAIN"
 RUN postconf -e 'transport_maps = hash:/etc/postfix/transport'
 RUN postconf -e 'mailman_destination_recipient_limit = 1'
 RUN postconf -e 'alias_maps = hash:/etc/aliases, hash:/var/lib/mailman/data/aliases'
 
 RUN . /assets/conf.sh && \
-	postconf -e 'myhostname=$MAILMAN_DOMAIN'
+	postconf -e "myhostname=$MAILMAN_DOMAIN"
 RUN . /assets/conf.sh && \
-	postconf -e 'mydestination=$MAILMAN_DOMAIN, localhost.localdomain, localhost'
+	postconf -e "mydestination=$MAILMAN_DOMAIN, localhost.localdomain, localhost"
 RUN postconf -e 'mail_spool_directory=/var/spool/mail/'
 RUN postconf -e 'mailbox_command='
 
