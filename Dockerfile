@@ -152,6 +152,10 @@ RUN . /assets/conf.sh && \
 	newlist --urlhost=$MAILMAN_DOMAIN --emailhost=$MAILMAN_DOMAIN \
 	mailman $MAILMAN_LIST_OWNER_MAIL $MAILMAN_LIST_OWNER_PASS
 
+# Set the global site password (Used for web authentication)
+RUN . /assets/conf.sh && \
+	mmsitepass $MAILMAN_SITE_PASS
+
 # Cleanup the assets directory.
 RUN rm -R /assets
 
