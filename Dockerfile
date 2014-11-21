@@ -64,7 +64,7 @@ RUN cp "/assets/etc-apache2-sites-mailman-conf" "/etc/apache2/sites-available/ma
 RUN mkdir /var/www/lists
 
 # Set the server name:
-RUN echo "ServerName localhost" > /etc/apache2/conf-available/fqdn
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/fqdn.conf
 RUN a2enconf fqdn
 
 # Enable CGI module in apache: (Required for mailman to work).
