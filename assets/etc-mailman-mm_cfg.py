@@ -74,7 +74,9 @@ DEFAULT_EMAIL_HOST = '${MAILMAN_DOMAIN}'
 DEFAULT_URL_HOST   = '${MAILMAN_DOMAIN}'
 #-------------------------------------------------------------
 # Required when setting any of its arguments.
-add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
+# add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
+VIRTUAL_HOSTS.clear()
+add_virtualhost(DEFAULT_URL_HOST)
 
 #-------------------------------------------------------------
 # The default language for this server.
