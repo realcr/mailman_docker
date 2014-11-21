@@ -12,7 +12,8 @@ RUN apt-get update
 # (Replaces environment variables by their value in configuration files.)
 # See for example:
 # http://stackoverflow.com/questions/14155596/how-to-substitute-shell-variables-in-complex-text-files
-RUN apt-get -y install gettext-base
+# moreutils is used for the sponge bash command.
+RUN apt-get -y install gettext-base moreutils
 
 # Good foor debugging
 RUN apt-get -y install mutt vim dnsutils wget curl
