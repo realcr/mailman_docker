@@ -7,6 +7,12 @@ MAINTAINER real <real.flayer@outlook.com>
 
 RUN apt-get update
 
+# Used to get the envsubst command 
+# (Replaces environment variables by their value in configuration files.)
+# See for example:
+# http://stackoverflow.com/questions/14155596/how-to-substitute-shell-variables-in-complex-text-files
+RUN apt-get -y install gettext-base
+
 # Good foor debugging
 RUN apt-get -y install mutt vim dnsutils wget curl
 
@@ -20,6 +26,16 @@ RUN echo mail > /etc/hostname
 RUN apt-get install -q -y ntp ntpdate
 RUN ntpdate -s
 
+######################## [Deal with assets] #######################
+
+# Copy the full assets directory (From the host machine):
+ADD ./assets /assets
+
+# Replace environment variables with their value in some configuration files:
+RUN envsubst < "/assets/etc-mailman-mm-cfg.py" > "/assets/etc-mailman-mm-cfg.py"
+RUN envsubst < "/assets/etc-postfix-transport" > "/assets/etc-postfix-transport"
+RUN envsubst < "/assets/etc-apache2-sites-mailman-conf" > "/assets/etc-postfix-transport"
+
 ######################## [Install Apache] #########################
 
 RUN apt-get install -y apache2
@@ -29,13 +45,13 @@ RUN apt-get install -y apache2
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
 
 # Mailman configuration file:
-ADD ./assets/etc-mailman-mm_cfg.py /etc/mailman/mm_cfg.py
+RUN cp "/assets/etc-mailman-mm_cfg.py" "/etc/mailman/mm_cfg.py"
 
 ########################[ Link Mailman to Apache ] ##################
 
 # Get relevant apache configuration for mailmain:
 # RUN ln -s /etc/mailman/apache.conf /etc/apache2/sites-available/mailman
-ADD ./assets/etc-apache2-sites-mailman-conf /etc/apache2/sites-available/mailman.conf
+RUN cp "/assets/etc-apache2-sites-mailman-conf" "/etc/apache2/sites-available/mailman.conf"
 # Create root site directory:
 RUN mkdir /var/www/lists
 
@@ -94,9 +110,9 @@ RUN useradd -s /bin/bash someone
 RUN mkdir /var/spool/mail/someone
 RUN chown someone:mail /var/spool/mail/someone
 
-ADD ./assets/etc-aliases.txt /etc/aliases
+RUN cp /assets/etc-aliases.txt /etc/aliases
 
-ADD ./assets/etc-postfix-transport /etc/postfix/transport
+RUN cp /assets/etc-postfix-transport /etc/postfix/transport
 RUN postmap -v /etc/postfix/transport
 
 #################[ Connect mailman to postfix ]#####################
@@ -117,7 +133,7 @@ RUN /etc/init.d/postfix restart
 # (used to handle processes)
 
 RUN apt-get install -y supervisor
-ADD ./assets/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN cp /assets/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #########[ Start all processes] ##################
 
