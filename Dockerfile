@@ -1,5 +1,13 @@
 # Taken from https://github.com/colmsjo/docker/tree/master/containers/mailman
 
+
+# Required Environment variables:
+
+# MAILMAN_LIST_OWNER_MAIL 	- The mail address of the owner of mailman list.
+# MAILMAN_LIST_OWNER_PASS 	- Mailman's list owner password.
+# MAILMAN_DOMAIN 		- Domain address for mailman.
+# MAILMAN_SITE_PASS		- Site password (The highest password for Web authentication).
+
 FROM ubuntu:14.04
 MAINTAINER real <real.flayer@outlook.com>
 
@@ -90,19 +98,19 @@ RUN sed -i 's/^#\(SYSLOGNG_OPTS="--no-caps"\)/\1/g' /etc/default/syslog-ng
 
 ################# [Install Postfix] ############
 RUN echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
-RUN echo "postfix postfix/mailname string lists.freedomlayer.org" >> preseed.txt
+RUN echo "postfix postfix/mailname string $MAILMAN_DOMAIN" >> preseed.txt
 
 # Use Mailbox format.
 RUN debconf-set-selections preseed.txt
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
 
-RUN postconf -e 'relay_domains = lists.freedomlayer.org'
+RUN postconf -e 'relay_domains = $MAILMAN_DOMAIN'
 RUN postconf -e 'transport_maps = hash:/etc/postfix/transport'
 RUN postconf -e 'mailman_destination_recipient_limit = 1'
 RUN postconf -e 'alias_maps = hash:/etc/aliases, hash:/var/lib/mailman/data/aliases'
 
-RUN postconf -e 'myhostname=lists.freedomlayer.org'
-RUN postconf -e 'mydestination=lists.freedomlayer.org, localhost.localdomain, localhost'
+RUN postconf -e 'myhostname=$MAILMAN_DOMAIN'
+RUN postconf -e 'mydestination=$MAILMAN_DOMAIN, localhost.localdomain, localhost'
 RUN postconf -e 'mail_spool_directory=/var/spool/mail/'
 RUN postconf -e 'mailbox_command='
 
@@ -140,9 +148,11 @@ RUN cp /assets/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 #########[ Start all processes] ##################
 
 # Build the first mailing list (mailman). Without it mailman won't work.
-RUN newlist --urlhost=lists.freedomlayer.org --emailhost=lists.freedomlayer.org \
-	mailman some_email@example.com 123456
+RUN newlist --urlhost=$MAILMAN_DOMAIN --emailhost=$MAILMAN_DOMAIN \
+	mailman $MAILMAN_LIST_OWNER_MAIL $MAILMAN_LIST_OWNER_PASS
 
 expose 25 80
 
 cmd ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
+
+

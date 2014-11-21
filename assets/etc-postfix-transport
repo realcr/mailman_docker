@@ -1,1 +1,1 @@
-lists.freedomlayer.org      mailman:
+${MAILMAN_DOMAIN}      mailman:

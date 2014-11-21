@@ -68,10 +68,10 @@ IMAGE_LOGOS         = '/mailman-icons/'
 
 #-------------------------------------------------------------
 # Default domain for email addresses of newly created MLs
-DEFAULT_EMAIL_HOST = 'lists.freedomlayer.org'
+DEFAULT_EMAIL_HOST = '${MAILMAIN_DOMAIN}'
 #-------------------------------------------------------------
 # Default host for web interface of newly created MLs
-DEFAULT_URL_HOST   = 'lists.freedomlayer.org'
+DEFAULT_URL_HOST   = '${MAILMAN_DOMAIN}'
 #-------------------------------------------------------------
 # Required when setting any of its arguments.
 add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)

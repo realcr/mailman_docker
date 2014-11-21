@@ -54,7 +54,7 @@
 #DEFAULT_URL_PATTERN = 'http://%s/'
 
 <VirtualHost *:80>
-ServerName lists.freedomlayer.org
+ServerName ${MAILMAN_DOMAIN}
 DocumentRoot /var/www/lists
 ErrorLog /var/log/apache2/lists-error.log
 CustomLog /var/log/apache2/lists-access.log combined
