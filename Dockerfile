@@ -34,6 +34,7 @@ RUN service ntp start
 
 # Copy the full assets directory (From the host machine):
 ADD ./assets /assets
+ADD ./conf.sh /assets/conf.sh
 WORKDIR /assets
 
 # Execution permissions:
