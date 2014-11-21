@@ -1,12 +1,5 @@
-# Taken from https://github.com/colmsjo/docker/tree/master/containers/mailman
-
-
-# Required Environment variables:
-
-# MAILMAN_LIST_OWNER_MAIL 	- The mail address of the owner of mailman list.
-# MAILMAN_LIST_OWNER_PASS 	- Mailman's list owner password.
-# MAILMAN_DOMAIN 		- Domain address for mailman.
-# MAILMAN_SITE_PASS		- Site password (The highest password for Web authentication).
+# Based on https://github.com/colmsjo/docker/tree/master/containers/mailman
+# and some other stuff.
 
 FROM ubuntu:14.04
 MAINTAINER real <real.flayer@outlook.com>
@@ -42,9 +35,7 @@ RUN service ntp start
 ADD ./assets /assets
 
 # Replace environment variables with their value in some configuration files:
-RUN envsubst < "/assets/etc-mailman-mm_cfg.py" > "/assets/etc-mailman-mm-cfg.py"
-RUN envsubst < "/assets/etc-postfix-transport" > "/assets/etc-postfix-transport"
-RUN envsubst < "/assets/etc-apache2-sites-mailman-conf" > "/assets/etc-postfix-transport"
+RUN sh -c "/assets/apply_conf.sh"
 
 ######################## [Install Apache] #########################
 
@@ -98,19 +89,23 @@ RUN sed -i 's/^#\(SYSLOGNG_OPTS="--no-caps"\)/\1/g' /etc/default/syslog-ng
 
 ################# [Install Postfix] ############
 RUN echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
-RUN echo "postfix postfix/mailname string $MAILMAN_DOMAIN" >> preseed.txt
+RUN source assets/conf.sh && \
+	echo "postfix postfix/mailname string $MAILMAN_DOMAIN" >> preseed.txt
 
 # Use Mailbox format.
 RUN debconf-set-selections preseed.txt
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
 
-RUN postconf -e 'relay_domains = $MAILMAN_DOMAIN'
+RUN source assets/conf.sh && \
+	postconf -e 'relay_domains = $MAILMAN_DOMAIN'
 RUN postconf -e 'transport_maps = hash:/etc/postfix/transport'
 RUN postconf -e 'mailman_destination_recipient_limit = 1'
 RUN postconf -e 'alias_maps = hash:/etc/aliases, hash:/var/lib/mailman/data/aliases'
 
-RUN postconf -e 'myhostname=$MAILMAN_DOMAIN'
-RUN postconf -e 'mydestination=$MAILMAN_DOMAIN, localhost.localdomain, localhost'
+RUN source assets/conf.sh && \
+	postconf -e 'myhostname=$MAILMAN_DOMAIN'
+RUN source assets/conf.sh && \
+	postconf -e 'mydestination=$MAILMAN_DOMAIN, localhost.localdomain, localhost'
 RUN postconf -e 'mail_spool_directory=/var/spool/mail/'
 RUN postconf -e 'mailbox_command='
 
@@ -143,16 +138,21 @@ RUN /etc/init.d/postfix restart
 # (used to handle processes)
 
 RUN apt-get install -y supervisor
-RUN cp /assets/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN cp /assets/supervisord.conf.sh /etc/supervisor/conf.d/supervisord.conf
 
 #########[ Start all processes] ##################
 
 # Build the first mailing list (mailman). Without it mailman won't work.
-RUN newlist --urlhost=$MAILMAN_DOMAIN --emailhost=$MAILMAN_DOMAIN \
+RUN source /assets/conf.sh && \
+	newlist --urlhost=$MAILMAN_DOMAIN --emailhost=$MAILMAN_DOMAIN \
 	mailman $MAILMAN_LIST_OWNER_MAIL $MAILMAN_LIST_OWNER_PASS
 
-expose 25 80
+# Cleanup the assets directory.
+RUN rm -R /assets
 
-cmd ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
+
+EXPOSE 25 80
+
+CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
 
 
