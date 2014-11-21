@@ -16,6 +16,9 @@ RUN update-locale LANG=en_US.UTF-8
 
 RUN echo mail > /etc/hostname
 
+# Sync the date:
+RUN apt-get install -q -y ntp ntpdate
+RUN ntpdate -s
 
 ######################## [Install Apache] #########################
 
@@ -26,13 +29,13 @@ RUN apt-get install -y apache2
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
 
 # Mailman configuration file:
-ADD ./etc-mailman-mm_cfg.py /etc/mailman/mm_cfg.py
+ADD ./assets/etc-mailman-mm_cfg.py /etc/mailman/mm_cfg.py
 
 ########################[ Link Mailman to Apache ] ##################
 
 # Get relevant apache configuration for mailmain:
 # RUN ln -s /etc/mailman/apache.conf /etc/apache2/sites-available/mailman
-ADD etc-apache2-sites-mailman-conf /etc/apache2/sites-available/mailman.conf
+ADD ./assets/etc-apache2-sites-mailman-conf /etc/apache2/sites-available/mailman.conf
 # Create root site directory:
 RUN mkdir /var/www/lists
 
@@ -91,9 +94,9 @@ RUN useradd -s /bin/bash someone
 RUN mkdir /var/spool/mail/someone
 RUN chown someone:mail /var/spool/mail/someone
 
-ADD etc-aliases.txt /etc/aliases
+ADD ./assets/etc-aliases.txt /etc/aliases
 
-ADD ./etc-postfix-transport /etc/postfix/transport
+ADD ./assets/etc-postfix-transport /etc/postfix/transport
 RUN postmap -v /etc/postfix/transport
 
 #################[ Connect mailman to postfix ]#####################
@@ -114,7 +117,7 @@ RUN /etc/init.d/postfix restart
 # (used to handle processes)
 
 RUN apt-get install -y supervisor
-ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+ADD ./assets/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #########[ Start all processes] ##################
 
