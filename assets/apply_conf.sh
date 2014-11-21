@@ -5,7 +5,7 @@
 # See conf.sh for detailed information.
 
 # Get environment variables:
-source /assets/conf.sh
+source conf.sh
 
 # Replace environment variables with their value in some configuration files:
 envsubst < "etc-mailman-mm_cfg.py" > "etc-mailman-mm-cfg.py"

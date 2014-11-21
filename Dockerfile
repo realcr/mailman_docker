@@ -33,6 +33,7 @@ RUN service ntp start
 
 # Copy the full assets directory (From the host machine):
 ADD ./assets /assets
+WORKDIR /assets
 # Execution permissions:
 RUN chmod +x "/assets/apply_conf.sh"
 
