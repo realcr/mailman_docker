@@ -168,6 +168,5 @@ EXPOSE 25 80
 # CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
 
 
-CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; service mailman start; /etc/init.d/supervisor start;"]
-
+CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; service mailman start; service apache2 start; tail -F /var/log/mailman/*"]
 
