@@ -36,10 +36,10 @@ ADD ./assets /assets
 WORKDIR /assets
 
 # Execution permissions:
-# RUN chmod +x "/assets/apply_conf.sh"
+RUN chmod +x "/assets/apply_conf.sh"
 
 # Replace environment variables with their value in some configuration files:
-RUN "bash /assets/apply_conf.sh"
+RUN "/assets/apply_conf.sh"
 
 ######################## [Install Apache] #########################
 
