@@ -93,22 +93,22 @@ RUN sed -i 's/^#\(SYSLOGNG_OPTS="--no-caps"\)/\1/g' /etc/default/syslog-ng
 
 ################# [Install Postfix] ############
 RUN echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
-RUN source assets/conf.sh && \
+RUN . assets/conf.sh && \
 	echo "postfix postfix/mailname string $MAILMAN_DOMAIN" >> preseed.txt
 
 # Use Mailbox format.
 RUN debconf-set-selections preseed.txt
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
 
-RUN source assets/conf.sh && \
+RUN . assets/conf.sh && \
 	postconf -e 'relay_domains = $MAILMAN_DOMAIN'
 RUN postconf -e 'transport_maps = hash:/etc/postfix/transport'
 RUN postconf -e 'mailman_destination_recipient_limit = 1'
 RUN postconf -e 'alias_maps = hash:/etc/aliases, hash:/var/lib/mailman/data/aliases'
 
-RUN source assets/conf.sh && \
+RUN . assets/conf.sh && \
 	postconf -e 'myhostname=$MAILMAN_DOMAIN'
-RUN source assets/conf.sh && \
+RUN . assets/conf.sh && \
 	postconf -e 'mydestination=$MAILMAN_DOMAIN, localhost.localdomain, localhost'
 RUN postconf -e 'mail_spool_directory=/var/spool/mail/'
 RUN postconf -e 'mailbox_command='
@@ -147,7 +147,7 @@ RUN cp /assets/supervisord.conf.sh /etc/supervisor/conf.d/supervisord.conf
 #########[ Start all processes] ##################
 
 # Build the first mailing list (mailman). Without it mailman won't work.
-RUN source /assets/conf.sh && \
+RUN . /assets/conf.sh && \
 	newlist --urlhost=$MAILMAN_DOMAIN --emailhost=$MAILMAN_DOMAIN \
 	mailman $MAILMAN_LIST_OWNER_MAIL $MAILMAN_LIST_OWNER_PASS
 
