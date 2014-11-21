@@ -74,6 +74,7 @@ DEFAULT_EMAIL_HOST = '${MAILMAN_DOMAIN}'
 DEFAULT_URL_HOST   = '${MAILMAN_DOMAIN}'
 #-------------------------------------------------------------
 # Required when setting any of its arguments.
+VIRTUAL_HOSTS.clear()
 add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
 
 POSTFIX_STYLE_VIRTUAL_DOMAINS = ['${MAILMAN_DOMAIN}']
