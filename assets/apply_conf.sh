@@ -8,6 +8,6 @@
 source conf.sh
 
 # Replace environment variables with their value in some configuration files:
-envsubst < "etc-mailman-mm_cfg.py" > "etc-mailman-mm-cfg.py"
+envsubst < "etc-mailman-mm_cfg.py" > "etc-mailman-mm_cfg.py"
 envsubst < "etc-postfix-transport" > "etc-postfix-transport"
 envsubst < "etc-apache2-sites-mailman-conf" > "etc-postfix-transport"
