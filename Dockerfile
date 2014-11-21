@@ -34,11 +34,12 @@ RUN service ntp start
 # Copy the full assets directory (From the host machine):
 ADD ./assets /assets
 WORKDIR /assets
+
 # Execution permissions:
-RUN chmod +x "/assets/apply_conf.sh"
+# RUN chmod +x "/assets/apply_conf.sh"
 
 # Replace environment variables with their value in some configuration files:
-RUN "/assets/apply_conf.sh"
+RUN "bash /assets/apply_conf.sh"
 
 ######################## [Install Apache] #########################
 
