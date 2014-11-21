@@ -34,7 +34,7 @@ RUN service ntp start
 ADD ./assets /assets
 
 # Replace environment variables with their value in some configuration files:
-RUN envsubst < "/assets/etc-mailman-mm-cfg.py" > "/assets/etc-mailman-mm-cfg.py"
+RUN envsubst < "/assets/etc-mailman-mm_cfg.py" > "/assets/etc-mailman-mm-cfg.py"
 RUN envsubst < "/assets/etc-postfix-transport" > "/assets/etc-postfix-transport"
 RUN envsubst < "/assets/etc-apache2-sites-mailman-conf" > "/assets/etc-postfix-transport"
 
