@@ -10,7 +10,7 @@ tar -xvf $1 -C ./
 
 # Backup the data, lists and archives mailman directories
 # by copying them to backup_temp directory on the host:
-docker run --name mailman_data_restore \
+docker run --name mailman_data_restore_cont \
 	--volumes-from mailman_data_cont \
 	-v $(readlink -f $BACK_DIR):/backup \
         mailman_data \
@@ -20,7 +20,7 @@ docker run --name mailman_data_restore \
         cp -R /var/lib/mailman/archives /backup/archives"
 
 # Clean up: remove mailman_data_restore container:
-docker rm -f mailman_data_restore
+docker rm -f mailman_data_restore_cont
 
 # Remove the backups folder (We got it from opening the tar):
 rm -R $BACK_DIR
