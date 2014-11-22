@@ -177,9 +177,8 @@ EXPOSE 25 80
 # because it is a volume that taken from the outside, and
 # the volume has incorrect permissions.
 
-CMD ["sh", "-c", "chown root:list -R /var/lib/mailman/data && \
-         chown root:list -R /var/lib/mailman/lists && \
-         chown root:list -R /var/lib/mailman/archives && \
+CMD ["sh", "-c", "chown root:list -R /var/lib/mailman/ && \
+         chmod g+w /var/lib/mailman && \
          service syslog-ng start && \
          service postfix start && \
          service mailman start && \
