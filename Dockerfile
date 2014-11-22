@@ -7,6 +7,7 @@ MAINTAINER real <real.flayer@outlook.com>
 # run echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list # 2013-08-24
 
 RUN apt-get update
+RUN apt-get upgrade -qqy
 
 # Used to get the envsubst command 
 # (Replaces environment variables by their value in configuration files.)
