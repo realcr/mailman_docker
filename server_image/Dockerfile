@@ -177,11 +177,12 @@ EXPOSE 25 80
 # because it is a volume that taken from the outside, and
 # the volume has incorrect permissions.
 
-CMD ["sh", "-c", "chown root:list -R /var/lib/mailman/ && \
-         chmod g+w /var/lib/mailman && \
+CMD ["sh", "-c", "chown root:list -R /var/lib/mailman && \
+         chmod -R g+w /var/lib/mailman && \
          service syslog-ng start && \
          service postfix start && \
          service mailman start && \
          service apache2 start && \
-         tail -F /var/log/mailman/*"]
+         tail -F /var/log/mail*"]
+    # tail -F /var/log/mailman/*"]
 
