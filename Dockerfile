@@ -35,6 +35,7 @@ RUN service ntp start
 
 # Copy the full assets directory (From the host machine):
 ADD ./assets /assets
+ADD ./conf.sh /assets/conf.sh
 WORKDIR /assets
 
 # Execution permissions:
@@ -46,6 +47,7 @@ RUN "/assets/apply_conf.sh"
 ######################## [Install Apache] #########################
 
 RUN apt-get install -y apache2
+
 
 ######################## [Install mailman] ########################
 
@@ -61,6 +63,10 @@ RUN cp "/assets/etc-mailman-mm_cfg.py" "/etc/mailman/mm_cfg.py"
 RUN cp "/assets/etc-apache2-sites-mailman-conf" "/etc/apache2/sites-available/mailman.conf"
 # Create root site directory:
 RUN mkdir /var/www/lists
+
+# Set the server name:
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/fqdn.conf
+RUN a2enconf fqdn
 
 # Enable CGI module in apache: (Required for mailman to work).
 RUN a2enmod cgi
@@ -165,6 +171,8 @@ RUN rm -R /assets
 
 EXPOSE 25 80
 
-CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
+# CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
 
+
+CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; service mailman start; service apache2 start; tail -F /var/log/mailman/*"]
 
