@@ -27,7 +27,7 @@ docker run --name  gen_skeleton_cont \
 docker rm -f gen_skeleton_cont
 
 # Remove the mailman_data_cont:
-docker rm -f mailman_data_cont
+docker rm -f mailman_data_cont 2> /dev/null
 
 # Build a new mailman_data_cont:
 docker run --name mailman_data_cont \
