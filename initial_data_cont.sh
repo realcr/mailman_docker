@@ -5,10 +5,10 @@
 # We will use this dir skeleton as the basic image of data_image.
 
 # Generate directories:
-mkdir ./var_files
-mkdir ./var_files/data
-mkdir ./var_files/lists
-mkdir ./var_files/archives
+mkdir -p ./var_files
+mkdir -p ./var_files/data
+mkdir -p ./var_files/lists
+mkdir -p ./var_files/archives
 
 # Get the directories contents by running a new mailman_server:
 docker run --name gen_skeleton_cont \
