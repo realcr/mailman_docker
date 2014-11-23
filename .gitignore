@@ -1,4 +1,4 @@
 *.swp
-conf.sh
-ports_conf.sh
+ports.conf
+server.conf
 backups/
