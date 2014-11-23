@@ -190,7 +190,7 @@ EXPOSE 25 80
 CMD ["sh", "-c", "chown root:list -R /var/lib/mailman && \
          chmod -R g+w /var/lib/mailman && \
          chown www-data /var/lib/mailman/archives/private && \
-         chmod o-x private && \
+         chmod o-x /var/lib/mailman/archives/private && \
          service syslog-ng start && \
          service postfix start && \
          service mailman start && \
