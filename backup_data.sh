@@ -5,6 +5,17 @@
 # Set abort on error:
 set -e
 
+# Check if mailman_server_cont is running. If it does,
+# we will abort. We don't want to read the data while the server
+# container is running.
+nlines_server=`docker ps | grep mailman_server_cont | wc -l`
+if [ "$nlines_server" -gt "0" ]
+	then echo "mailman_server_cont is still running! Aborting data backup." && \
+		exit
+fi
+
+echo "Creating backup..."
+
 BACK_DIR="backup_temp"
 
 mkdir -p ./${BACK_DIR}
@@ -29,10 +40,12 @@ mkdir -p ./backups
 
 # Create a tar archive (With the current date):
 now=$(date +%m_%d_%Y_%H_%M_%S)
-tar -cvf ./backups/backup_${now}.tar $BACK_DIR
+tar -cvf ./backups/backup_${now}.tar $BACK_DIR > /dev/null
 
 # Remove the temporary backups folder:
 rm -R $BACK_DIR
+
+echo "Backup saved at backup_${now}"
 
 # Unset abort on error:
 set +e
