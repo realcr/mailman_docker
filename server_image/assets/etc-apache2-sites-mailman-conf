@@ -78,5 +78,5 @@ ScriptAlias /rmlist /usr/lib/cgi-bin/mailman/rmlist
 ScriptAlias /roster /usr/lib/cgi-bin/mailman/roster
 ScriptAlias /subscribe /usr/lib/cgi-bin/mailman/subscribe
 ScriptAlias /mailman/ /usr/lib/cgi-bin/mailman/
-# ScriptAlias / /usr/lib/cgi-bin/mailman/listinfo/
+ScriptAlias / /usr/lib/cgi-bin/mailman/listinfo/
 </VirtualHost>
