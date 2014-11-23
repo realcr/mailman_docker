@@ -17,3 +17,11 @@ export MAILMAN_DOMAIN=lists.freedomlayer.org
 
 # Site password (The highest password for Web authentication):
 export MAILMAN_SITE_PASS=12345678
+
+# External HTTP port:
+# The server container 80 port will be exposed as this port to the outside world:
+export EXT_HTTP_PORT=80
+
+# External SMTP port:
+# The server container 25 port will be exposed as this port to the outside world:
+export EXT_SMTP_PORT=25
