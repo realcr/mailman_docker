@@ -7,12 +7,24 @@
 # Abort on failure.
 set -e
 
+# Check if mailman_server_cont is running. If it does,
+# we will abort. We don't want to initialize the data while the server
+# container is running.
+nlines_server=`docker ps | grep mailman_server_cont | wc -l`
+if [ "$nlines_server" -gt "0" ]
+	then echo "mailman_server_cont is still running! Aborting data initialization." && \
+		exit
+fi
+
 # Count the amount of lines with "mailman_data_cont" inside the 
 # output of "docker ps -a". This tells us if the mailman_data_cont container is there.
 # If it is there, we backup it first. If it is not there, there is nothing
 # to backup.
 nlines_data=`docker ps -a | grep mailman_data_cont | wc -l`
-if [ "$nlines_data" -gt "0" ] ; then ./backup_data.sh ; fi
+if [ "$nlines_data" -gt "0" ]
+	then echo "There might be important data inside mailman_data_cont.
+Creating a backup first..." && \
+	       	./backup_data.sh ; fi
 
 
 # Generate directories:
