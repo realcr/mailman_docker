@@ -71,6 +71,10 @@ RUN a2enconf fqdn
 # Enable CGI module in apache: (Required for mailman to work).
 RUN a2enmod cgi
 
+# Remove the default apache sites:
+RUN a2dissite 000-default
+# RUN a2dissite ssl-default
+
 # Enable the mailman virtual host:
 RUN a2ensite mailman
 
