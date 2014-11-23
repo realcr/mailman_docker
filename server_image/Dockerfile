@@ -48,7 +48,6 @@ RUN "/assets/apply_conf.sh"
 
 RUN apt-get install -y apache2
 
-
 ######################## [Install mailman] ########################
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
@@ -72,15 +71,14 @@ RUN a2enconf fqdn
 RUN a2enmod cgi
 
 # Remove the default apache sites:
-RUN a2dissite 000-default
-# RUN a2dissite ssl-default
+# RUN a2dissite 000-default
+# RUN a2dissite ssl-default # Seems like this site doesn't work at all.
 
 # Enable the mailman virtual host:
 RUN a2ensite mailman
 
 # Restart apache:
 RUN /etc/init.d/apache2 restart
-
 
 
 ###############[ Install syslog-ng ]################################
