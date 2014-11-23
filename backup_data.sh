@@ -8,9 +8,6 @@ set -e
 BACK_DIR="backup_temp"
 
 mkdir -p ./${BACK_DIR}
-# mkdir -p ./${BACK_DIR}/data
-# mkdir -p ./${BACK_DIR}/lists
-# mkdir -p ./${BACK_DIR}/archives
 
 # Backup the data, lists and archives mailman directories
 # by copying them to backup_temp directory on the host:
@@ -27,9 +24,12 @@ docker run --name mailman_data_backup_cont \
 # Clean up docker container:
 docker rm -f mailman_data_backup_cont
 
+# We are going to save into ./backups directory:
+mkdir -p ./backups
+
 # Create a tar archive (With the current date):
-now=$(date +%m_%d_%Y)
-tar -cvf ./backup_${now}.tar $BACK_DIR
+now=$(date +%m_%d_%Y_%H_%M_%S)
+tar -cvf ./backups/backup_${now}.tar $BACK_DIR
 
 # Remove the temporary backups folder:
 rm -R $BACK_DIR

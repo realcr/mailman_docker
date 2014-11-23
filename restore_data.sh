@@ -6,6 +6,15 @@
 # Abort on failure.
 set -e
 
+# Check if mailman_server_cont is running. If it does,
+# we will abort. We don't want to change the data while the server
+# container is running.
+nlines_server=`docker ps | grep mailman_server_cont | wc -l`
+if [ "$nlines_server" -gt "0" ]
+	then echo "mailman_server_cont is still running! Aborting data restore." && \
+		exit
+fi
+
 BACK_DIR="backup_temp"
 
 # Extract the Tar file into backup_temp:
