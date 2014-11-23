@@ -15,10 +15,12 @@ if [ "$nlines_server" -gt "0" ]
 		exit
 fi
 
+echo "Restoring..."
+
 BACK_DIR="backup_temp"
 
 # Extract the Tar file into backup_temp:
-tar -xvf $1 -C ./
+tar -xvf $1 -C ./ > /dev/null
 
 # Backup the data, lists and archives mailman directories
 # by copying them to backup_temp directory on the host:
