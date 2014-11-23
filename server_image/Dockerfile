@@ -78,6 +78,7 @@ RUN a2ensite mailman
 RUN /etc/init.d/apache2 restart
 
 
+
 ###############[ Install syslog-ng ]################################
 
 # Use syslog-ng to get Postfix logs (rsyslog uses upstart which does not seem
@@ -173,12 +174,23 @@ EXPOSE 25 80
 
 # CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
 
+# We have to change some permissions, because we get the mailman data from
+# external volumes.
+
 # We first change the permissions of /var/lib/mailman,
 # because it is a volume that taken from the outside, and
 # the volume has incorrect permissions.
 
+# Then we deal with the archives. We want to let apache browse the private folder,
+# So we change the owner of private to www-data (Apache's user), and remove
+# the execution permission.
+
+# Finally we start the services of syslog-n, postfix, mailman and apache2.
+
 CMD ["sh", "-c", "chown root:list -R /var/lib/mailman && \
          chmod -R g+w /var/lib/mailman && \
+         chown www-data /var/lib/mailman/archives/private && \
+         chmod o-x private && \
          service syslog-ng start && \
          service postfix start && \
          service mailman start && \
