@@ -14,6 +14,14 @@ if [ "$nlines_server" -gt "0" ]
 		exit
 fi
 
+# Check if mailman_data_cont exists. If it doesn't exist, we abort.
+nlines_data=`docker ps -a | grep mailman_data_cont | wc -l`
+if [ "$nlines_data" -eq "0" ]
+	then echo "Missing mailman_data_cont container! Aborting. Please run
+initial_data_cont first." && \
+		exit
+fi
+
 # Get the environment variables from conf.sh
 source ports.conf
 
@@ -23,7 +31,7 @@ docker run -d --name  mailman_server_cont \
 	--volumes-from mailman_data_cont \
         mailman_server
 
-echo "Server is running on HTTP port $EXT_HTTP_PORT and SMTP port $EXT_SMTP_PORT ."
+echo "Server serves HTTP on port $EXT_HTTP_PORT and SMTP on port $EXT_SMTP_PORT ."
 
 # Unset abort on failure.
 set +e
