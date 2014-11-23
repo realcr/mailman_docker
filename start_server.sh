@@ -23,5 +23,8 @@ docker run -d --name  mailman_server_cont \
 	--volumes-from mailman_data_cont \
         mailman_server
 
+echo "Server is running on HTTP port $EXT_HTTP_PORT and SMTP port $EXT_SMTP_PORT ."
+
 # Unset abort on failure.
 set +e
+
