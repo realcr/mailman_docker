@@ -172,7 +172,7 @@ WORKDIR /
 RUN rm -R /assets
 
 
-EXPOSE 25 80
+# EXPOSE 25 80
 
 # CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
 
@@ -197,6 +197,5 @@ CMD ["sh", "-c", "chown root:list -R /var/lib/mailman && \
          service postfix start && \
          service mailman start && \
          service apache2 start && \
-         tail -F /var/log/mail*"]
-    # tail -F /var/log/mailman/*"]
+         tail -F /var/log/mailman/*"]
 
