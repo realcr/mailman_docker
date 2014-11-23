@@ -1,3 +1,4 @@
 *.swp
 conf.sh
+ports_conf.sh
 backups/
