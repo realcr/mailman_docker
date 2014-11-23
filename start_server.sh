@@ -20,7 +20,6 @@ source ports.conf
 # Get the directories contents by running a new mailman_server:
 docker run -d --name  mailman_server_cont \
         -p ${EXT_HTTP_PORT}:80 -p ${EXT_SMTP_PORT}:25 \
-	-v $(readlink -f ./conf.sh):/assets/conf.sh \
 	--volumes-from mailman_data_cont \
         mailman_server
 
