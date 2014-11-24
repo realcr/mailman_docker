@@ -1,5 +1,4 @@
 #! /usr/bin/env bash
-
 ### BEGIN INIT INFO
 # Provides: mailman_docker
 # Required-Start: docker networking
@@ -11,7 +10,7 @@
 # 
 ### END INIT INFO
 
-MM_DOCKER_DIR=/home/real/projects/mailman/mailman_docker/
+MM_DOCKER_DIR=.
 
 case "$1" in
  start)
