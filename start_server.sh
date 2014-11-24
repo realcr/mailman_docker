@@ -8,10 +8,16 @@ set -e
 
 # Check if mailman_server_cont is running. 
 # If it is running, we abort.
-nlines_server=`docker ps | grep mailman_server_cont | wc -l`
-if [ "$nlines_server" -gt "0" ]
+nlines_server_run=`docker ps | grep mailman_server_cont | wc -l`
+if [ "$nlines_server_run" -gt "0" ]
 	then echo "mailman_server_cont is already running! Aborting." && \
 		exit
+fi
+
+nlines_server=`docker ps -a | grep mailman_server_cont | wc -l`
+if [ "$nlines_server" -gt "0" ]
+	then echo "Removing old mailman_server_cont. (Not running)" && \
+		docker rm -f mailman_server_cont
 fi
 
 # Check if mailman_data_cont exists. If it doesn't exist, we abort.
