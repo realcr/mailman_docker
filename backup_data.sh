@@ -39,7 +39,7 @@ docker rm -f mailman_data_backup_cont
 mkdir -p ./backups
 
 # Create a tar archive (With the current date):
-now=$(date +%m_%d_%Y_%H_%M_%S)
+now=$(date +%Y_%m_%d_%H_%M_%S)
 tar -cvf ./backups/backup_${now}.tar $BACK_DIR > /dev/null
 
 # Remove the temporary backups folder:
