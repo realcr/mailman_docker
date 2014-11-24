@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+### BEGIN INIT INFO
+# Provides: mailman_docker
+# Required-Start: docker networking
+# Required-Stop: docker networking
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Mailman Docker
+# Description: Starts and stops the docker container responsible for mailman.
+# 
+### END INIT INFO
+
+MM_DOCKER_DIR=/home/real/projects/mailman/mailman_docker/
+
+case "$1" in
+ start)
+   sudo $MM_DOCKER_DIR/start_server.sh
+   ;;
+ stop)
+   sudo $MM_DOCKER_DIR/stop_server.sh
+   ;;
+ restart)
+   sudo $MM_DOCKER_DIR/stop_server.sh
+   sudo $MM_DOCKER_DIR/start_server.sh
+   ;;
+ *)
+   echo "Usage: mailman_docker {start|stop|restart}" >&2
+   exit 3
+   ;;
+esac
