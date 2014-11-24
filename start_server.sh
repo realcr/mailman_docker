@@ -22,14 +22,20 @@ initial_data_cont first." && \
 		exit
 fi
 
-# Get the environment variables from conf.sh
-source ports.conf
+# Get the environment variables from server.conf:
+source server.conf
 
-# Get the directories contents by running a new mailman_server:
-docker run -d --name  mailman_server_cont \
+# Get the directories contents by running a new mailman_server.
+# We get the volumes from the mailman_data_cont container.
+# We also map the configuration file server.conf, and the assets from
+# ./server_image/assets
+docker run -it --name  mailman_server_cont \
         -p ${EXT_HTTP_PORT}:80 -p ${EXT_SMTP_PORT}:25 \
 	--volumes-from mailman_data_cont \
-        mailman_server
+	-v $(readlink -f ./server_image/assets):/assets \
+	-v $(readlink -f ./server.conf):/assets/server.conf \
+        mailman_server sh -c "chmod +x /assets/conf_and_run.sh && \
+				/assets/conf_and_run.sh"
 
 echo "Server serves HTTP on port $EXT_HTTP_PORT and SMTP on port $EXT_SMTP_PORT ."
 

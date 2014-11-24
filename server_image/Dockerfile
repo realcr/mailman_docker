@@ -9,6 +9,13 @@ MAINTAINER real <real.flayer@outlook.com>
 RUN apt-get update
 RUN apt-get upgrade -qqy
 
+# Get ntp stuff for time syncing:
+RUN apt-get install -q -y ntp ntpdate
+# Sync the time:
+RUN service ntp stop
+RUN ntpd -gq
+RUN service ntp start
+
 # Used to get the envsubst command 
 # (Replaces environment variables by their value in configuration files.)
 # See for example:
@@ -25,61 +32,13 @@ RUN update-locale LANG=en_US.UTF-8
 
 RUN echo mail > /etc/hostname
 
-# Sync the date:
-RUN apt-get install -q -y ntp ntpdate
-RUN service ntp stop
-RUN ntpd -gq
-RUN service ntp start
 
-######################## [Deal with assets] #######################
-
-# Copy the full assets directory (From the host machine):
-ADD ./assets /assets
-ADD ./server.conf /assets/server.conf
-WORKDIR /assets
-
-# Execution permissions:
-RUN chmod +x "/assets/apply_conf.sh"
-
-# Replace environment variables with their value in some configuration files:
-RUN "/assets/apply_conf.sh"
-
-######################## [Install Apache] #########################
-
+# Install Apache2 web server:
 RUN apt-get install -y apache2
 
 ######################## [Install mailman] ########################
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
-
-# Mailman configuration file:
-RUN cp "/assets/etc-mailman-mm_cfg.py" "/etc/mailman/mm_cfg.py"
-
-########################[ Link Mailman to Apache ] ##################
-
-# Get relevant apache configuration for mailmain:
-# RUN ln -s /etc/mailman/apache.conf /etc/apache2/sites-available/mailman
-RUN cp "/assets/etc-apache2-sites-mailman-conf" "/etc/apache2/sites-available/mailman.conf"
-# Create root site directory:
-RUN mkdir /var/www/lists
-
-# Set the server name:
-RUN echo "ServerName localhost" > /etc/apache2/conf-available/fqdn.conf
-RUN a2enconf fqdn
-
-# Enable CGI module in apache: (Required for mailman to work).
-RUN a2enmod cgi
-
-# Remove the default apache sites:
-# RUN a2dissite 000-default
-# RUN a2dissite ssl-default # Seems like this site doesn't work at all.
-
-# Enable the mailman virtual host:
-RUN a2ensite mailman
-
-# Restart apache:
-RUN /etc/init.d/apache2 restart
-
 
 ###############[ Install syslog-ng ]################################
 
@@ -104,98 +63,15 @@ RUN sed -i 's/^#\(SYSLOGNG_OPTS="--no-caps"\)/\1/g' /etc/default/syslog-ng
 
 ################# [Install Postfix] ############
 RUN echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
-RUN . /assets/server.conf && \
-	echo "postfix postfix/mailname string $MAILMAN_DOMAIN" >> preseed.txt
+RUN echo "postfix postfix/mailname string MY_DOMAIN_PLACEHOLDER" >> preseed.txt
 
 # Use Mailbox format.
 RUN debconf-set-selections preseed.txt
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
 
-RUN . /assets/server.conf && \
-	postconf -e "relay_domains = $MAILMAN_DOMAIN"
-RUN postconf -e 'transport_maps = hash:/etc/postfix/transport'
-RUN postconf -e 'mailman_destination_recipient_limit = 1'
-RUN postconf -e 'alias_maps = hash:/etc/aliases, hash:/var/lib/mailman/data/aliases'
-
-RUN . /assets/server.conf && \
-	postconf -e "myhostname=$MAILMAN_DOMAIN"
-RUN . /assets/server.conf && \
-	postconf -e "mydestination=$MAILMAN_DOMAIN, localhost.localdomain, localhost"
-RUN postconf -e 'mail_spool_directory=/var/spool/mail/'
-RUN postconf -e 'mailbox_command='
-
-# Add a local user to receive mail at someone@example.com, with a delivery directory
-# (for the Mailbox format).
-RUN useradd -s /bin/bash someone
-RUN mkdir /var/spool/mail/someone
-RUN chown someone:mail /var/spool/mail/someone
-
-RUN cp /assets/etc-aliases.txt /etc/aliases
-
-RUN cp /assets/etc-postfix-transport /etc/postfix/transport
-RUN postmap -v /etc/postfix/transport
-
-#################[ Connect mailman to postfix ]#####################
-
-# Generate aliases:
-RUN /usr/lib/mailman/bin/genaliases
-
-# Allow access to /var/lib/mailman/data/aliases
-# See http://wiki.list.org/pages/viewpage.action?pageId=4030721
-RUN chmod 0664 /var/lib/mailman/data/aliases*
-
-RUN chown root:list /etc/postfix/transport
-
-RUN newaliases
-RUN /etc/init.d/postfix restart
 
 ######### [Install supervidord] ################## 
 # (used to handle processes)
 
 RUN apt-get install -y supervisor
-RUN cp /assets/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-#########[ Start all processes] ##################
-
-# Build the first mailing list (mailman). Without it mailman won't work.
-RUN . /assets/server.conf && \
-	newlist --urlhost=$MAILMAN_DOMAIN --emailhost=$MAILMAN_DOMAIN \
-	mailman $MAILMAN_LIST_OWNER_MAIL $MAILMAN_LIST_OWNER_PASS
-
-# Set the global site password (Used for web authentication)
-RUN . /assets/server.conf && \
-	mmsitepass $MAILMAN_SITE_PASS
-
-# Move to the root directory:
-WORKDIR /
-# Cleanup the assets directory.
-RUN rm -R /assets
-
-
-# EXPOSE 25 80
-
-# CMD ["sh", "-c", "service syslog-ng start ; service postfix start ; /etc/init.d/supervisor start; /usr/lib/mailman/bin/mailmanctl start; tail -F /var/log/mailman/*"]
-
-# We have to change some permissions, because we get the mailman data from
-# external volumes.
-
-# We first change the permissions of /var/lib/mailman,
-# because it is a volume that taken from the outside, and
-# the volume has incorrect permissions.
-
-# Then we deal with the archives. We want to let apache browse the private folder,
-# So we change the owner of private to www-data (Apache's user), and remove
-# the execution permission.
-
-# Finally we start the services of syslog-n, postfix, mailman and apache2.
-
-CMD ["sh", "-c", "chown root:list -R /var/lib/mailman && \
-         chmod -R g+w /var/lib/mailman && \
-         chown www-data /var/lib/mailman/archives/private && \
-         chmod o-x /var/lib/mailman/archives/private && \
-         service syslog-ng start && \
-         service postfix start && \
-         service mailman start && \
-         service apache2 start && \
-         tail -F /var/log/mailman/*"]
 
