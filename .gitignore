@@ -1,4 +1,3 @@
 *.swp
-ports.conf
 server.conf
 backups/
