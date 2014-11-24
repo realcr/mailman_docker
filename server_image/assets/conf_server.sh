@@ -1,17 +1,10 @@
 #!/usr/bin/env bash
 
 # Configure Mailman, Apache and Postfix using the 
-# given configuration file. Finally, Start the server.
+# given configuration file.
 
 # Abort on failure:
 set -e
-
-# Getting the assets
-# -------------------
-# Copy the full assets directory (From the host machine):
-# ADD ./assets /assets
-# ADD ./server.conf /assets/server.conf
-
 
 # The assets will be mapped to /assets
 # server.conf will be mapped to /assets/server.conf
@@ -25,7 +18,7 @@ chmod +x "/assets/apply_conf.sh"
 /assets/apply_conf.sh
 
 # Source server.conf here, to get all the environment variables from it.
-source server.conf
+source /assets/server.conf
 
 # Copy Mailman configuration file:
 cp "/assets/etc-mailman-mm_cfg.py" "/etc/mailman/mm_cfg.py"
@@ -54,7 +47,7 @@ a2enmod cgi
 a2ensite mailman
 
 # Restart apache:
-/etc/init.d/apache2 restart
+# /etc/init.d/apache2 restart
 
 
 # Configure postfix
@@ -97,26 +90,14 @@ chmod 0664 /var/lib/mailman/data/aliases*
 chown root:list /etc/postfix/transport
 
 newaliases
-/etc/init.d/postfix restart
+# /etc/init.d/postfix restart
 
 ## Supervisord configuration files:
 # --------------------------------
 cp /assets/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-#########[ Start all processes] ##################
-
-# Build the first mailing list (mailman). Without it mailman won't work.
-# If it already exists, we won't build it.
-newlist --urlhost=$MAILMAN_DOMAIN --emailhost=$MAILMAN_DOMAIN \
-	mailman $MAILMAN_LIST_OWNER_MAIL $MAILMAN_LIST_OWNER_PASS || true
-
-# Set the global site password (Used for web authentication)
-mmsitepass $MAILMAN_SITE_PASS
-
-# Move to the root directory:
-cd /
-# Cleanup the assets directory.
-# rm -R /assets
+## Permissions:
+# --------------
 
 # We have to change some permissions, because we get the mailman data from
 # external volumes.
@@ -133,12 +114,3 @@ chmod -R g+w /var/lib/mailman
 chown www-data /var/lib/mailman/archives/private
 chmod o-x /var/lib/mailman/archives/private
 
-# Finally we start the services of syslog-n, postfix, mailman and apache2.
-service syslog-ng start
-service postfix start
-service mailman start
-service apache2 start
-tail -F /var/log/mailman/*
-
-# Unset abort on failure:
-set +e
