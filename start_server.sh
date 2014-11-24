@@ -29,13 +29,15 @@ source server.conf
 # We get the volumes from the mailman_data_cont container.
 # We also map the configuration file server.conf, and the assets from
 # ./server_image/assets
-docker run -it --name  mailman_server_cont \
+docker run -d --name  mailman_server_cont \
         -p ${EXT_HTTP_PORT}:80 -p ${EXT_SMTP_PORT}:25 \
 	--volumes-from mailman_data_cont \
-	-v $(readlink -f ./server_image/assets):/assets \
-	-v $(readlink -f ./server.conf):/assets/server.conf \
-        mailman_server sh -c "chmod +x /assets/conf_and_run.sh && \
-				/assets/conf_and_run.sh"
+	-v $(readlink -f ./server_image/assets):/raw_assets \
+	-v $(readlink -f ./server.conf):/raw_assets/server.conf \
+        mailman_server sh -c "chmod +x /assets/*.sh && \
+				/assets/conf_server.sh && \
+				/assets/run_server.sh && \
+				tail -F /var/log/mailman/*"
 
 echo "Server serves HTTP on port $EXT_HTTP_PORT and SMTP on port $EXT_SMTP_PORT ."
 

@@ -38,11 +38,15 @@ docker run --name  gen_skeleton_cont \
         -v $(readlink -f ./var_files/data):/mm_vfiles/data \
         -v $(readlink -f ./var_files/lists):/mm_vfiles/lists \
         -v $(readlink -f ./var_files/archives):/mm_vfiles/archives \
-        mailman_server \
-        sh -c "\
-        cp -R /var/lib/mailman/data /mm_vfiles && \
-        cp -R /var/lib/mailman/lists /mm_vfiles && \
-        cp -R /var/lib/mailman/archives /mm_vfiles"
+	-v $(readlink -f ./server_image/assets):/raw_assets \
+	-v $(readlink -f ./server.conf):/raw_assets/server.conf \
+        mailman_server sh -c "chmod +x /assets/*.sh && \
+		/assets/conf_server.sh && \
+		/assets/server_first_usage.sh && \
+		/assets/run_server.sh && \
+		cp -R /var/lib/mailman/data /mm_vfiles && \
+		cp -R /var/lib/mailman/lists /mm_vfiles && \
+		cp -R /var/lib/mailman/archives /mm_vfiles"
 
 # Cleanup the gen_skeleton_cont:
 docker rm -f gen_skeleton_cont
