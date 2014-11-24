@@ -36,8 +36,8 @@ docker run -it --name  mailman_server_cont \
 	--volumes-from mailman_data_cont \
 	-v $(readlink -f ./server_image/assets):/raw_assets \
 	-v $(readlink -f ./server.conf):/raw_assets/server.conf \
-        mailman_server sh -c "chmod +x /assets/*.sh && \
-				/assets/conf_server.sh && \
+        mailman_server sh -c "chmod +x /raw_assets/*.sh && \
+				/raw_assets/conf_server.sh && \
 				/assets/run_server.sh && \
 				/bin/bash"
 
