@@ -63,6 +63,10 @@ RUN sed -i 's/^#\(SYSLOGNG_OPTS="--no-caps"\)/\1/g' /etc/default/syslog-ng
 
 ################# [Install Postfix] ############
 RUN echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt
+
+# I have to supply some mailname. It seems like later configuration will 
+# override this value, so I just pick something random.
+# (MY_DOMAIN_PLACEHOLDER).
 RUN echo "postfix postfix/mailname string MY_DOMAIN_PLACEHOLDER" >> preseed.txt
 
 # Use Mailbox format.
