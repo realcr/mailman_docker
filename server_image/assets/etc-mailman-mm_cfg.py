@@ -64,7 +64,7 @@ MAILMAN_SITE_LIST = 'mailman'
 DEFAULT_URL_PATTERN = 'http://%s/'
 # PRIVATE_ARCHIVE_URL = '/cgi-bin/mailman/private'
 PUBLIC_ARCHIVE_URL = 'http://%(hostname)s/archives/%(listname)s'
-IMAGE_LOGOS         = '/mailman-icons/'
+IMAGE_LOGOS         = '/images/mailman/'
 
 #-------------------------------------------------------------
 # Default domain for email addresses of newly created MLs
