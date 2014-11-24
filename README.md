@@ -14,20 +14,17 @@ You will need to have docker installed though.
 ## Having a working server in minutes
 
 ### Basic Configuration:
-Create your own configuration files from the example template:
+Create your own configuration file from the example template:
 
-	cp example_ports.conf ports.conf
-	cp server_images/example_server.conf server_images/server.conf
+	cp example_server.conf server.conf
 
-Next edit ports.conf to have the ports you want. (The defaults in
-example_server.conf are 80 for HTTP and 25 for SMTP).
+Edit server.conf. It should contain the mailman list owner email, mailman
+list owner password, mailman domain and mailman site password. It also contains
+the wanted HTTP port and SMTP port. Those are the only things I couldn't
+provide for you :) You will have to fill it in yourself.
 
-Then edit server.conf. It should contain the mailman list owner email, mailman
-list owner password, mailman domain and mailman site password. Those are the
-only things I couldn't provide for you :) You will have to fill it in yourself.
-
-server.conf and ports.conf are listed in .gitignore, to make sure that you
-don't accidently add them to your repository.
+server.conf is listed in .gitignore, to make sure that you don't accidently add
+them to your repository.
 
 ### Building the images:
 
@@ -35,7 +32,9 @@ This is a step you have to do only once:
 
 	sudo ./build_images
 
-This will build the Docker images mailman_server and mailman_data.
+This will build the Docker images mailman_server and mailman_data. (Note that
+you don't have to redo this step even if you change server.conf. This step is
+independent of server.conf)
 
 ### Starting the server:
 
@@ -55,6 +54,10 @@ specified as MAILMAN_DOMAIN inside server.conf.
 To stop the server, you can use the command:
 	
 	sudo ./stop_server
+
+If you feel like debugging something, open an interactive server sessions with:
+
+	sudo ./inter_server
 
 ## Backups
 
@@ -81,9 +84,7 @@ to do so, No worries :) )
 ## How does it work?
 
 We are working with two Docker images: mailman_server and mailman_data. Both of
-them are built using the build_images.sh script. mailman_server image is built
-using the configuration inside ./server_image/server.conf, therefore if you
-make any changes to this configuration file you should rebuild the images.
+them are built using the build_images.sh script. 
 
 The mailman_data image is based on busybox, and is used as a container of
 volumes. It contains nothing besides the data required to keep state for the
@@ -94,9 +95,9 @@ The mailman_data_cont container is created based on the mailman_data image.
 This container holds the data of the Mailman server.
 
 The second container we create is mailman_server_cont. It is created from the
-mailman_server image. This container holds all the installation of Mailman,
-Apache and Postfix. Being derived from mailman_server, it also contains all the
-configuration from ./server_image/sersver.conf.
+mailman_server image together with the configuration file server.conf. This
+container holds all the installation of Mailman, Apache and Postfix, and the
+relevant configuration.
 
 The mailman_server_cont uses the volumes from the mailman_data_cont. This is
 how we keep the state of the Mailman server.
