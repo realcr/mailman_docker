@@ -10,7 +10,13 @@
 # 
 ### END INIT INFO
 
+# See 
+# http://mobiarch.wordpress.com/2014/05/16/creating-an-init-script-in-ubuntu-14-04/ 
+# http://www.thegeekstuff.com/2012/03/lsbinit-script/ 
+
 MM_DOCKER_DIR=.
+
+cd $MM_DOCKER_DIR
 
 case "$1" in
  start)
