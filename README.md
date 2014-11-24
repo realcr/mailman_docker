@@ -3,10 +3,13 @@
 This is a Docker based setup for running a
 [Mailman](http://www.gnu.org/software/mailman/) server.
 
-Basically it builds a Docker images with Docker, Apache and Postfix.
+Basically it builds a Docker images with Docker, Apache and Postfix over Ubuntu
+14.04.
 It works out of the box. You don't really need to know anything. It is
 persistant (Using a data container with volumes), and has ready to use commands
 for backup and restore.
+
+You will need to have docker installed though.
 
 ## Having a working server in minutes
 
@@ -53,4 +56,63 @@ To stop the server, you can use the command:
 	
 	sudo ./stop_server
 
+## Backups
+
+You can backup or restore backups.
+Backup is done using the command:
+
+	sudo ./backup_data
+
+This command will create a tar file (His name will be the current date and
+time) at the ./backups folder. Note that ./backup_data will not work if the
+server is working. You have to stop the server first using the stop_server
+command.
+
+Restoring is done using the command:
+
+	sudo ./restore_data <tar_file>
+
+You have to supply some backup tar file for this command to work. This command,
+just like backup_data, will not work if the server is working. Make sure to
+stop the server first. (If you forget, the restore_data command will remind you
+to do so, No worries :) )
+
+
+## How does it work?
+
+We are working with two Docker images: mailman_server and mailman_data. Both of
+them are built using the build_images.sh script. mailman_server image is built
+using the configuration inside ./server_image/server.conf, therefore if you
+make any changes to this configuration file you should rebuild the images.
+
+The mailman_data image is based on busybox, and is used as a container of
+volumes. It contains nothing besides the data required to keep state for the
+Mailman server. There are three main folders in mailman that we need to save to be
+able to keep state. Those are /var/lib/mailman/{lists,archives,data}. 
+
+The mailman_data_cont container is created based on the mailman_data image.
+This container holds the data of the Mailman server.
+
+The second container we create is mailman_server_cont. It is created from the
+mailman_server image. This container holds all the installation of Mailman,
+Apache and Postfix. Being derived from mailman_server, it also contains all the
+configuration from ./server_image/sersver.conf.
+
+The mailman_server_cont uses the volumes from the mailman_data_cont. This is
+how we keep the state of the Mailman server.
+
+## Known issues:
+
+If instead of using the domain name I use the IP address when accessing the
+generated website, the default Apache page is presented. If you disable the
+default service (Using ap2dissite 000-default), you will get a mailman page for
+a domain which is the IP (Definitely not what you want). See my SO question
+here for more details:
+
+http://serverfault.com/questions/646456/mailman-and-apache-virtual-hosts-problems
+
+## Final notes:
+It took about a week to make this work. I'm pretty happy with the result,
+though I'm pretty sure there is some place for improvement. If you have any
+thoughts or ideas to improve it, feel free to send them here.
 
