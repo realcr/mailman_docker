@@ -40,8 +40,8 @@ docker run --name  gen_skeleton_cont \
         -v $(readlink -f ./var_files/archives):/mm_vfiles/archives \
 	-v $(readlink -f ./server_image/assets):/raw_assets \
 	-v $(readlink -f ./server.conf):/raw_assets/server.conf \
-        mailman_server sh -c "chmod +x /assets/*.sh && \
-		/assets/conf_server.sh && \
+        mailman_server sh -c "chmod +x /raw_assets/*.sh && \
+		/raw_assets/conf_server.sh && \
 		/assets/server_first_usage.sh && \
 		/assets/run_server.sh && \
 		cp -R /var/lib/mailman/data /mm_vfiles && \
