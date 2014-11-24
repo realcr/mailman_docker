@@ -6,14 +6,17 @@
 # Abort on failure:
 set -e
 
-# The assets will be mapped to /assets
-# server.conf will be mapped to /assets/server.conf
+# The assets will be mapped to /raw_assets
+# server.conf will be mapped to /raw_assets/server.conf
+
+# We don't want to change original external files, so we copy 
+# to a new folder.
+cp -R /raw_assets /assets
 
 cd /assets
 
 # Execution permissions:
 chmod +x "/assets/apply_conf.sh"
-
 # Replace environment variables with their value in some configuration files:
 /assets/apply_conf.sh
 
