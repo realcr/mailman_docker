@@ -3,6 +3,12 @@
 # Backup mailman data and send backup to google drive.
 # This script should be run periodically.
 
+# Example for a line in a crontab:
+# Run "sudo crontab -e" and add the following line:
+# Backup mailman daily (And write to log)
+# * * * * * /full/path/to/backup_mailman.sh >> /var/log/backup_mailman.log 2>&1
+
+
 # Abort on failure:
 set -e
 
