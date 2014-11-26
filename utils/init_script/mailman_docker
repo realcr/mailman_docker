@@ -14,6 +14,7 @@
 # http://mobiarch.wordpress.com/2014/05/16/creating-an-init-script-in-ubuntu-14-04/ 
 # http://www.thegeekstuff.com/2012/03/lsbinit-script/ 
 
+# Set the MM_DOCKER_DIR to be the path of mailman_docker:
 MM_DOCKER_DIR=.
 
 cd $MM_DOCKER_DIR
