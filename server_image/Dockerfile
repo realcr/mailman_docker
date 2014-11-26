@@ -2,7 +2,7 @@
 # and some other stuff.
 
 FROM ubuntu:14.04
-MAINTAINER real <real.flayer@outlook.com>
+MAINTAINER real <real@freedomlayer.org>
 
 # run echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list # 2013-08-24
 
