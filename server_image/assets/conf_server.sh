@@ -82,6 +82,8 @@ postconf -e 'smtp_tls_protocols = !SSLv2, !SSLv3'
 # do not use ciphers shorter than 128 bit
 postconf -e 'smtpd_tls_mandatory_ciphers = high'
 postconf -e 'smtpd_tls_ciphers = high'
+postconf -e 'smtp_tls_mandatory_ciphers = high'
+postconf -e 'smtp_tls_ciphers = high'
 
 # Add a local user to receive mail at someone@example.com, with a delivery directory
 # (for the Mailbox format).
