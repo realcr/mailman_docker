@@ -69,6 +69,22 @@ postconf -e "mydestination=$MAILMAN_DOMAIN, localhost.localdomain, localhost"
 postconf -e 'mail_spool_directory=/var/spool/mail/'
 postconf -e 'mailbox_command='
 
+# configure TLS in postfix
+# ------------------------
+# enable tls for server and client
+postconf -e 'smtpd_tls_security_level = may'
+postconf -e 'smtp_tls_security_level = may'
+# disable unsafe protocols like SSL3 and older
+postconf -e 'smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3'
+postconf -e 'smtpd_tls_protocols = !SSLv2, !SSLv3'
+postconf -e 'smtp_tls_mandatory_protocols = !SSLv2, !SSLv3'
+postconf -e 'smtp_tls_protocols = !SSLv2, !SSLv3'
+# do not use ciphers shorter than 128 bit
+postconf -e 'smtpd_tls_mandatory_ciphers = high'
+postconf -e 'smtpd_tls_ciphers = high'
+postconf -e 'smtp_tls_mandatory_ciphers = high'
+postconf -e 'smtp_tls_ciphers = high'
+
 # Add a local user to receive mail at someone@example.com, with a delivery directory
 # (for the Mailbox format).
 useradd -s /bin/bash someone
