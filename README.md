@@ -30,7 +30,7 @@ them to your repository.
 
 This is a step you have to do only once:
 
-	sudo ./build_images
+	sudo ./build_images.sh
 
 This will build the Docker images mailman_server and mailman_data. (Note that
 you don't have to redo this step even if you change server.conf. This step is
@@ -42,29 +42,29 @@ First we create a data container. (You will only do it once. You never need to
 do it again, unless you want to initialize all the data of your mailman
 server):
 
-	sudo ./initial_data_cont
+	sudo ./initial_data_cont.sh
 
 Next, we start the server:
 
-	sudo ./start_server
+	sudo ./start_server.sh
 
 You can use your browser now to see the result. Go to the address that you have
 specified as MAILMAN_DOMAIN inside server.conf.
 
 To stop the server, you can use the command:
 	
-	sudo ./stop_server
+	sudo ./stop_server.sh
 
 If you feel like debugging something, open an interactive server sessions with:
 
-	sudo ./inter_server
+	sudo ./inter_server.sh
 
 ## Backups
 
 You can backup or restore backups.
 Backup is done using the command:
 
-	sudo ./backup_data
+	sudo ./backup_data.sh
 
 This command will create a tar file (His name will be the current date and
 time) at the ./backups folder. Note that ./backup_data will not work if the
@@ -73,7 +73,7 @@ command.
 
 Restoring is done using the command:
 
-	sudo ./restore_data <tar_file>
+	sudo ./restore_data.sh <tar_file>
 
 You have to supply some backup tar file for this command to work. This command,
 just like backup_data, will not work if the server is working. Make sure to
