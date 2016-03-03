@@ -6,39 +6,37 @@ MAINTAINER real <real@freedomlayer.org>
 
 # run echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list # 2013-08-24
 
-RUN apt-get update
-RUN apt-get upgrade -qqy
+# Install required packages:
+RUN \
+	apt-get update && \
+	apt-get upgrade -qqy \
+	DEBIAN_FRONTEND=noninteractive apt-get install -y \
+		ntp \
+		ntpdate \
+		gettext-base \
+		moreutils \
+		mutt \
+		vim \
+		dnsutils \
+		wget \
+		curl \
+		language-pack-en \
+		apache2 \
+		mailman \
+		syslog-ng \
+		syslog-ng-core \
+		postfix \
+		supervisor
 
-# Get ntp stuff for time syncing:
-RUN apt-get install -q -y ntp ntpdate
 # Sync the time:
 RUN service ntp stop
 RUN ntpd -gq
 RUN service ntp start
 
-# Used to get the envsubst command 
-# (Replaces environment variables by their value in configuration files.)
-# See for example:
-# http://stackoverflow.com/questions/14155596/how-to-substitute-shell-variables-in-complex-text-files
-# moreutils is used for the sponge bash command.
-RUN apt-get -y install gettext-base moreutils
 
-# Good foor debugging
-RUN apt-get -y install mutt vim dnsutils wget curl
-
-# Language stuff:
-RUN apt-get install -q -y language-pack-en
 RUN update-locale LANG=en_US.UTF-8
 
 RUN echo mail > /etc/hostname
-
-
-# Install Apache2 web server:
-RUN apt-get install -y apache2
-
-######################## [Install mailman] ########################
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
 
 ###############[ Install syslog-ng ]################################
 
@@ -47,7 +45,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mailman
 
 # Added syslog-ng-core to solve a problem here.
 # Advice from: https://bugs.launchpad.net/ubuntu/+source/syslog-ng/+bug/1242173
-RUN apt-get install -q -y syslog-ng syslog-ng-core
 
 # Read more about the relation of postfix logging to syslog here:
 # http://www.postfix.org/BASIC_CONFIGURATION_README.html#syslog_howto
@@ -71,11 +68,4 @@ RUN echo "postfix postfix/mailname string MY_DOMAIN_PLACEHOLDER" >> preseed.txt
 
 # Use Mailbox format.
 RUN debconf-set-selections preseed.txt
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -q -y postfix
-
-
-######### [Install supervidord] ################## 
-# (used to handle processes)
-
-RUN apt-get install -y supervisor
 
