@@ -1,7 +1,7 @@
 # Mailman docker image
 
 This is a Docker based setup for running a
-[Mailman](http://www.gnu.org/software/mailman/) server.
+[Mailman](http://www.gnu.org/software/mailman/) server (Of version 2).
 
 Basically it builds a Docker images with Docker, Apache and Postfix over Ubuntu
 14.04.
